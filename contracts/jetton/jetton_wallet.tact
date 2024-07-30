@@ -1,4 +1,4 @@
-import "./messages";
+import "./jetton_messages";
 struct WalletData {
     balance: Int as coins;
     owner: Address;
