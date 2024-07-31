@@ -1,5 +1,4 @@
 import "./jetton_wallet";
-
 struct JettonData {
     total_supply: Int as coins;
     mintable: Bool;
@@ -12,6 +11,17 @@ trait JettonMaster {
     mintable: Bool;
     owner: Address;
     jetton_content: Cell;
+
+    //////////////////////////////////////
+    /////          MESSAGES          /////
+    //////////////////////////////////////
+
+    //
+    /// @notice Handles incoming JettonBurnNotification messages;
+    /// @notice Ensures only the associated JettonWallet can send burn notifications;
+    /// @notice Updates the total supply of the jetton;
+    ///
+    /// @param msg - The JettonBurnNotification message containing burn details;
 
     receive(msg: JettonBurnNotification){
         let ctx: Context = context();
@@ -30,6 +40,15 @@ trait JettonMaster {
         }
     }
 
+    //////////////////////////////////////
+    /////          GETTERS           /////
+    //////////////////////////////////////
+
+    //
+    /// @notice Retrieves the jetton data;
+    ///
+    /// @return JettonData - Struct containing the jetton data;
+
     get fun get_jetton_data(): JettonData {
         return
             JettonData{
@@ -40,6 +59,13 @@ trait JettonMaster {
                 jetton_wallet_code: initOf JettonWallet(myAddress(), myAddress()).code
             };
     }
+
+    //
+    /// @notice Retrieves the wallet address for a given owner address;
+    ///
+    /// @param owner_address - The address of the wallet owner;
+    ///
+    /// @return Address - The address of the associated JettonWallet;
 
     get fun get_wallet_address(owner_address: Address): Address {
         return contractAddress(initOf JettonWallet(owner_address, myAddress()));

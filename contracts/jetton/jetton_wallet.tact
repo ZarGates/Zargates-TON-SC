@@ -12,10 +12,28 @@ contract JettonWallet {
     jetton_master: Address;
     const gasConsumption: Int = ton("0.01");
     const minTonsForStorage: Int = ton("0.01");
+    
+    //
+    /// @notice Initializes the JettonWallet contract;
+    ///
+    /// @param owner - The address of the wallet owner;
+    /// @param jetton_master - The address of the associated jetton master contract;
+
     init(owner: Address, jetton_master: Address){
         self.owner = owner;
         self.jetton_master = jetton_master;
     }
+
+    //////////////////////////////////////
+    /////          MESSAGES          /////
+    //////////////////////////////////////
+
+    //
+    /// @notice Handles incoming JettonTransfer messages;
+    /// @notice Ensures only the owner can transfer jettons and that the transfer amount is valid;
+    /// @notice Sends the specified amount to the destination address;
+    ///
+    /// @param msg - The JettonTransfer message containing transfer details;
 
     receive(msg: JettonTransfer){
         let ctx: Context = context();
@@ -46,6 +64,13 @@ contract JettonWallet {
             }
         );
     }
+
+    //
+    /// @notice Handles incoming JettonInternalTransfer messages;
+    /// @notice Updates the wallet balance with the received amount;
+    /// @notice Sends a notification if forward payload is specified;
+    ///
+    /// @param msg - The JettonInternalTransfer message containing transfer details;
 
     receive(msg: JettonInternalTransfer){
         let ctx: Context = context();
@@ -85,6 +110,13 @@ contract JettonWallet {
         }
     }
 
+    //
+    /// @notice Handles incoming JettonBurn messages;
+    /// @notice Ensures only the owner can burn tokens and the burn amount is valid;
+    /// @notice Notifies the jetton master contract of the burn;
+    ///
+    /// @param msg - The JettonBurn message containing burn details;
+
     receive(msg: JettonBurn){
         let ctx: Context = context();
         self.balance = (self.balance - msg.amount);
@@ -105,13 +137,32 @@ contract JettonWallet {
         );
     }
 
+    //
+    /// @notice Handles bounced JettonInternalTransfer messages;
+    ///
+    /// @param src - The bounced JettonInternalTransfer message;
+
     bounced(src: bounced<JettonInternalTransfer>){
         self.balance = (self.balance + src.amount);
     }
 
+    //
+    /// @notice Handles bounced JettonBurnNotification messages;
+    ///
+    /// @param src - The bounced JettonBurnNotification message;
+
     bounced(src: bounced<JettonBurnNotification>){
         self.balance = (self.balance + src.amount);
     }
+
+    //////////////////////////////////////
+    /////          GETTERS           /////
+    //////////////////////////////////////
+
+    //
+    /// @notice Retrieves the wallet data;
+    ///
+    /// @return WalletData - Struct containing the wallet data;
 
     get fun get_wallet_data(): WalletData {
         return
